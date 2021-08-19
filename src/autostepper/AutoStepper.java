@@ -14,6 +14,9 @@ import java.util.Scanner;
 /**
  *
  * @author Phr00t
+ *
+ *	Modified by Thomas Franz 08.19.2021
+ *
  */
 public class AutoStepper {
     
@@ -66,38 +69,47 @@ public class AutoStepper {
         return false;
     }
     
+	
     public static void main(String[] args) {
+		
         minim = new Minim(myAS);
         String outputDir, input;
         float duration;
-        System.out.println("Starting AutoStepper by Phr00t's Software, v1.7 (See www.phr00t.com for more goodies!)");
-        if( hasArg(args, "help") || hasArg(args, "h") || hasArg(args, "?") || hasArg(args, "-help") || hasArg(args, "-?") || hasArg(args, "-h") ) {
+		
+        System.out.println("Starting AutoStepper by Phr00t's Software, a modified branch of version of v1.7");
+		
+        // Display help information if user requested it
+		if( hasArg(args, "help") || hasArg(args, "h") || hasArg(args, "?") || hasArg(args, "-help") || hasArg(args, "-?") || hasArg(args, "-h") ) {
             System.out.println("Argument usage (all fields are optional):\n"
                     + "input=<file or dir> output=<songs dir> duration=<seconds to process, default: 90> tap=<true/false> tapsync=<tap time offset, default: -0.11> hard=<true/false> updatesm=<true/false>");
             return;
         }
+		
+		// Populate our parameter variables using the arguments we parsed above. Defaults are used if arguments were not specified!
         MAX_BPM = Float.parseFloat(getArg(args, "maxbpm", "170f"));
         outputDir = getArg(args, "output", ".");
         if( outputDir.endsWith("/") == false ) outputDir += "/";
         input = getArg(args, "input", ".");
-        duration = Float.parseFloat(getArg(args, "duration", "90"));
+        duration = Float.parseFloat(getArg(args, "duration", "90"));		// The length of the file will be forced to this number of seconds!
         STARTSYNC = Float.parseFloat(getArg(args, "synctime", "0.0"));
         BPM_SENSITIVITY = Float.parseFloat(getArg(args, "bpmsensitivity", "0.05"));
         USETAPPER = getArg(args, "tap", "false").equals("true");
         TAPSYNC = Double.parseDouble(getArg(args, "tapsync", "-0.11"));
         HARDMODE = getArg(args, "hard", "false").equals("true");
         UPDATESM = getArg(args, "updatesm", "false").equals("true");
-        File inputFile = new File(input);
+		
+		// Look for our input file or directory and process each applicable file
+        File inputFile = new File(input);												// Is this a single file?
         if( inputFile.isFile() ) {
-            myAS.analyzeUsingAudioRecordingStream(inputFile, duration, outputDir);            
-        } else if( inputFile.isDirectory() ) {
+            myAS.analyzeUsingAudioRecordingStream(inputFile, duration, outputDir);      // Process this file
+        } else if( inputFile.isDirectory() ) {											// or is this a directory?
             System.out.println("Processing directory: " + inputFile.getAbsolutePath());
-            File[] allfiles = inputFile.listFiles();
-            for(File f : allfiles) {
+            File[] allfiles = inputFile.listFiles();									// Create a list of all files in the directory
+            for(File f : allfiles) {													// Spin through each file
                 String extCheck = f.getName().toLowerCase();
                 if( f.isFile() &&
-                    (extCheck.endsWith(".mp3") || extCheck.endsWith(".wav")) ) {
-                    myAS.analyzeUsingAudioRecordingStream(f, duration, outputDir);                    
+                    (extCheck.endsWith(".mp3") || extCheck.endsWith(".wav")) ) {		// Does this appear to be a valid file? (mp3 or wav)
+                    myAS.analyzeUsingAudioRecordingStream(f, duration, outputDir);      // Process this file
                 } else {
                     System.out.println("Skipping unsupported file: " + f.getName());
                 }
@@ -257,6 +269,8 @@ public class AutoStepper {
         return BPM;
     }
     
+	// Function: analyzeUsingAudioRecordingStream
+	// Purpose:  This is our master function for reading a music file and creating a step file from it!
     void analyzeUsingAudioRecordingStream(File filename, float seconds, String outputDir) {
       int fftSize = 512;
       
@@ -276,7 +290,7 @@ public class AutoStepper {
       fewbd.setSensitivity(60f/MAX_BPM);
       fewbde.setSensitivity(60f/MAX_BPM);
       
-      FFT fft = new FFT( fftSize, stream.getFormat().getSampleRate() );
+      FFT fft = new FFT( fftSize, stream.getFormat().getSampleRate() );		// FFT = Fast Fourier Transform
 
       // create the buffer we use for reading from the stream
       MultiChannelBuffer buffer = new MultiChannelBuffer(fftSize, stream.getFormat().getChannels());
@@ -376,6 +390,7 @@ public class AutoStepper {
                     }
                 }
                 timePerBeat = 60f / BPM;
+				
               } catch(Exception e) { }
           } else {
               System.out.println("Couldn't find SM to update: " + smfile.getAbsolutePath());

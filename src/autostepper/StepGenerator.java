@@ -37,7 +37,6 @@ public class StepGenerator {
         return -1;
     }
     
-    // make a note line, with lots of checks, balances & filtering
     static float[] holding = new float[4];
     static float lastJumpTime;
     static ArrayList<char[]> AllNoteLines = new ArrayList<>();
@@ -86,6 +85,7 @@ public class StepGenerator {
         return getNoteLineIndex(AllNoteLines.size()-1);
     }
     
+	// make a note line, with lots of checks, balances & filtering
     private static void makeNoteLine(String lastLine, float time, int steps, int holds, boolean mines) {
         if( steps == 0 ) {
             char[] ret = getHoldStops(getHoldCount(), time, holds);
@@ -213,6 +213,13 @@ public class StepGenerator {
         return true;
     }
     
+	//************************************************************************************************************
+	//
+	// Function: GenerateNotes
+	// Purpose:  Public function which generates a single full-length step pattern based on the parameters passed
+	//			 Each call to this function creates a single difficulty, so if we are creating step patterns
+	//			 For multiple difficulty levels this function must be called once for each difficulty level
+	//
     public static String GenerateNotes(int stepGranularity, int skipChance,
                                        TFloatArrayList[] manyTimes,
                                        TFloatArrayList[] fewTimes,
@@ -233,6 +240,7 @@ public class StepGenerator {
         int totalStepsMade = 0, timeIndex = 0;
         boolean skippedLast = false;
         float timeGranularity = timePerBeat / stepGranularity;
+		
         for(float t = timeOffset; t <= totalTime; t += timeGranularity) {
             int steps = 0, holds = 0;
             String lastLine = getLastNoteLine();
