@@ -1,3 +1,7 @@
+You are viewing a branch of this project! This branch will include customizations that may not reflect the original author's work. 
+
+** 
+
 AutoStepper is a Java console program designed to automatically create StepMania SM files with these features:
 
     Generate all difficulty levels
